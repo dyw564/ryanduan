@@ -1,427 +1,280 @@
-"   This is the personal .vimrc file of Ryan Duan.
-"
+syntax on                   " Syntax highlighting
+set mouse=a                 " Automatically enable mouse usage
+set mousehide               " Hide the mouse cursor while typing
+scriptencoding utf-8
+set shortmess+=filmnrxoOtT          " Abbrev. of messages (avoids 'hit enter')
+set viewoptions=folds,options,cursor,unix,slash " Better Unix / Windows compatibility
+set virtualedit=onemore             " Allow for cursor beyond last character
+set history=1000                    " Store a ton of history (default is 20)
+set spell                           " Spell checking on
+set hidden                          " Allow buffer switching without saving
 
-" Environment {
-    " Basics {
-        set nocompatible        " must be first line
-        set background=dark     " Assume a dark background
-    " }
+set tabpagemax=15               " Only show 15 tabs
+set showmode                    " Display the current mode
+set cursorline                  " Highlight current line
+if has('cmdline_info')
+    set ruler                   " Show the ruler
+    set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " A ruler on steroids
+    set showcmd                 " Show partial commands in status line and
+                                " Selected characters/lines in visual mode
+endif 
+set backspace=indent,eol,start  " Backspace for dummies
+set linespace=0                 " No extra spaces between rows
+set nu                          " Line numbers on
+set showmatch                   " Show matching brackets/parenthesis
+set incsearch                   " Find as you type search
+set hlsearch                    " Highlight search terms
+set winminheight=0              " Windows can be 0 line high
+set ignorecase                  " Case insensitive search
+set smartcase                   " Case sensitive when uc present
+set wildmenu                    " Show list instead of just completing
+set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
+set whichwrap=b,s,h,l,<,>,[,]   " Backspace and cursor keys wrap too
+set scrolljump=5                " Lines to scroll when cursor leaves screen
+set scrolloff=3                 " Minimum lines to keep above and below cursor
+set foldenable                  " Auto fold code
+set list
+set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
+set nowrap                      " Wrap long lines
+"set autoindent                  " Indent at the same level of the previous line
+set shiftwidth=4                " Use indents of 4 spaces
+set expandtab                   " Tabs are spaces, not tabs
+set tabstop=4                   " An indentation every four columns
+set softtabstop=4               " Let backspace delete indent
+set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
+set splitright                  " Puts new vsplit windows to the right of the current
+set splitbelow                  " Puts new split windows to the bottom of the current
+"set matchpairs+=<:>             " Match, to be used with %
+set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
+"set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
+" Remove trailing whitespaces and ^M chars
+autocmd FileType c,cpp,java,go,php,javascript,python,twig,xml,yml autocmd BufWritePre <buffer> call StripTrailingWhitespace()
+autocmd FileType go autocmd BufWritePre <buffer> Fmt
+autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
+autocmd FileType haskell setlocal expandtab shiftwidth=2 softtabstop=2
+" preceding line best in a plugin but here for now.
 
-    " Windows Compatible {
-        " On Windows, also use '.vim' instead of 'vimfiles'; this makes synchronization
-        " across (heterogeneous) systems easier. 
-        if has('win32') || has('win64')
-          set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
-        endif
-    " }
-    " 
-    " Setup Bundle Support {
-    " The next two lines ensure that the ~/.vim/bundle/ system works
-        runtime! autoload/pathogen.vim
-        silent! call pathogen#helptags()
-        silent! call pathogen#runtime_append_all_bundles()
-    " }
+autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 
-" }
+" Workaround vim-commentary for Haskell
+autocmd FileType haskell setlocal commentstring=--\ %s
+" Workaround broken colour highlighting in Haskell
+autocmd FileType haskell setlocal nospell
 
-" General {
-    set background=dark         " Assume a dark background
-    if !has('win32') && !has('win64')
-        set term=$TERM       " Make arrow and other keys work
+nmap <leader>f0 :set foldlevel=0<CR>
+nmap <leader>f1 :set foldlevel=1<CR>
+nmap <leader>f2 :set foldlevel=2<CR>
+nmap <leader>f3 :set foldlevel=3<CR>
+nmap <leader>f4 :set foldlevel=4<CR>
+nmap <leader>f5 :set foldlevel=5<CR>
+nmap <leader>f6 :set foldlevel=6<CR>
+nmap <leader>f7 :set foldlevel=7<CR>
+nmap <leader>f8 :set foldlevel=8<CR>
+nmap <leader>f9 :set foldlevel=9<CR>
+" Find merge conflict markers
+map <leader>fc /\v^[<\|=>]{7}( .*\|$)<CR>
+" Shortcuts
+" Change Working Directory to that of the current file
+cmap cwd lcd %:p:h
+cmap cd. lcd %:p:h
+
+" Visual shifting (does not exit Visual mode)
+vnoremap < <gv
+vnoremap > >gv
+
+" Allow using the repeat operator with a visual selection (!)
+" http://stackoverflow.com/a/8064607/127816
+vnoremap . :normal .<CR>
+" Fix home and end keybindings for screen, particularly on mac
+" - for some reason this fixes the arrow keys too. huh.
+
+map [F $
+imap [F $
+map [H g0
+imap [H g0
+
+" For when you forget to sudo.. Really Write the file.
+cmap w!! w !sudo tee % >/dev/null
+
+" Some helpers to edit mode
+" http://vimcasts.org/e/14
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+map <leader>ew :e %%
+map <leader>es :sp %%
+map <leader>ev :vsp %%
+map <leader>et :tabe %%
+" Adjust viewports to the same size
+map <Leader>= <C-w>=
+
+" Map <Leader>ff to display all lines with keyword under cursor
+" and ask which one to jump to
+nmap <Leader>ff [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
+
+" Easier horizontal scrolling
+map zl zL
+map zh zH
+
+
+let g:DisableAutoPHPFolding = 0
+let g:PIVAutoClose = 0
+
+let g:NERDShutUp=1
+let b:match_ignorecase = 1
+
+if has("autocmd") && exists("+omnifunc")
+    autocmd Filetype *
+        \if &omnifunc == "" |
+        \setlocal omnifunc=syntaxcomplete#Complete |
+        \endif
+endif
+
+hi Pmenu  guifg=#000000 guibg=#F8F8F8 ctermfg=black ctermbg=Lightgray
+hi PmenuSbar  guifg=#8A95A7 guibg=#F8F8F8 gui=NONE ctermfg=darkcyan ctermbg=lightgray cterm=NONE
+hi PmenuThumb  guifg=#F8F8F8 guibg=#8A95A7 gui=NONE ctermfg=lightgray ctermbg=darkcyan cterm=NONE
+
+" Some convenient mappings
+"inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
+"inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+"inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+"inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+"inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
+"inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
+
+" Automatically open and close the popup menu / preview window
+au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
+set completeopt=menu,preview,longest
+
+set tags=./tags;/,~/.vimtags
+
+let gitroot = substitute(system('git rev-parse --show-toplevel'), '[\n\r]', '', 'g')
+if gitroot != ''
+    let &tags = &tags . ',' . gitroot . '/.git/tags'
+endif
+
+map <C-e> :NERDTreeToggle<CR>:NERDTreeMirror<CR>
+map <leader>e :NERDTreeFind<CR>
+nmap <leader>nt :NERDTreeFind<CR>
+
+let NERDTreeShowBookmarks=1
+let NERDTreeIgnore=['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
+let NERDTreeChDirMode=0
+let NERDTreeQuitOnOpen=1
+let NERDTreeMouseMode=2
+let NERDTreeShowHidden=1
+let NERDTreeKeepTreeInNewTab=1
+let g:nerdtree_tabs_open_on_gui_startup=0
+
+
+nmap <Leader>a& :Tabularize /&<CR>
+vmap <Leader>a& :Tabularize /&<CR>
+nmap <Leader>a= :Tabularize /=<CR>
+vmap <Leader>a= :Tabularize /=<CR>
+nmap <Leader>a: :Tabularize /:<CR>
+vmap <Leader>a: :Tabularize /:<CR>
+nmap <Leader>a:: :Tabularize /:\zs<CR>
+vmap <Leader>a:: :Tabularize /:\zs<CR>
+nmap <Leader>a, :Tabularize /,<CR>
+vmap <Leader>a, :Tabularize /,<CR>
+nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+
+
+set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
+nmap <leader>sl :SessionList<CR>
+nmap <leader>ss :SessionSave<CR>
+nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
+let g:pymode_lint_checker = "pyflakes"
+let g:pymode_utils_whitespaces = 0
+let g:pymode_options = 0
+let g:ctrlp_working_path_mode = 'ra'
+nnoremap <silent> <D-t> :CtrlP<CR>
+nnoremap <silent> <D-r> :CtrlPMRU<CR>
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\.git$\|\.hg$\|\.svn$',
+    \ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$' }
+
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [  'p:package', 'i:imports:1', 'c:constants', 'v:variables',
+        \ 't:types',  'n:interfaces', 'w:fields', 'e:embedded', 'm:methods',
+        \ 'r:constructor', 'f:functions' ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : { 't' : 'ctype', 'n' : 'ntype' },
+    \ 'scope2kind' : { 'ctype' : 't', 'ntype' : 'n' },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+    \ }
+
+
+
+if !has('python')
+    let g:pymode = 1
+endif
+
+nnoremap <silent> <leader>gs :Gstatus<CR>
+nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gc :Gcommit<CR>
+nnoremap <silent> <leader>gb :Gblame<CR>
+nnoremap <silent> <leader>gl :Glog<CR>
+nnoremap <silent> <leader>gp :Git push<CR>
+nnoremap <silent> <leader>gr :Gread<CR>:GitGutter<CR>
+nnoremap <silent> <leader>gw :Gwrite<CR>:GitGutter<CR>
+nnoremap <silent> <leader>ge :Gedit<CR>
+nnoremap <silent> <leader>gg :GitGutterToggle<CR>
+
+
+if has('gui_running')
+    set guioptions-=T           " Remove the toolbar
+    set lines=40                " 40 lines of text instead of 24
+    if has("gui_gtk2")
+        set guifont=Andale\ Mono\ Regular\ 16,Menlo\ Regular\ 15,Consolas\ Regular\ 16,Courier\ New\ Regular\ 18
+    elseif has("gui_mac")
+        set guifont=Andale\ Mono\ Regular:h16,Menlo\ Regular:h15,Consolas\ Regular:h16,Courier\ New\ Regular:h18
+    elseif has("gui_win32")
+        set guifont=Andale_Mono:h10,Menlo:h10,Consolas:h10,Courier_New:h10
     endif
-    filetype plugin indent on   " Automatically detect file types.
-    syntax on                   " syntax highlighting
-    set mouse=a                 " automatically enable mouse usage
-    "set autochdir              " always switch to the current file directory.. Messes with some plugins, best left commented out
-    " not every vim is compiled with this, use the following line instead
-    " If you use command-t plugin, it conflicts with this, comment it out.
-     "autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-    scriptencoding utf-8
-
-    " set autowrite                  " automatically write a file when leaving a modified buffer
-    set shortmess+=filmnrxoOtT      " abbrev. of messages (avoids 'hit enter')
-    set viewoptions=folds,options,cursor,unix,slash " better unix / windows compatibility
-    set virtualedit=onemore         " allow for cursor beyond last character
-    set history=1000                " Store a ton of history (default is 20)
-    set spell                       " spell checking on
-    
-    " Setting up the directories {
-        set backup                      " backups are nice ...
-        " Moved to function at bottom of the file
-        "set backupdir=$HOME/.vimbackup//  " but not when they clog .
-        "set directory=$HOME/.vimswap//     " Same for swap files
-        "set viewdir=$HOME/.vimviews//  " same for view files
-        
-        "" Creating directories if they don't exist
-        "silent execute '!mkdir -p $HVOME/.vimbackup'
-        "silent execute '!mkdir -p $HOME/.vimswap'
-        "silent execute '!mkdir -p $HOME/.vimviews'
-        au BufWinLeave * silent! mkview  "make vim save view (state) (folds, cursor, etc)
-        au BufWinEnter * silent! loadview "make vim load view (state) (folds, cursor, etc)
-    " }
-" }
-
-" Vim UI {
-    color solarized                 " load a colorscheme
-    set tabpagemax=15               " only show 15 tabs
-    set showmode                    " display the current mode
-
-    set cursorline                  " highlight current line
-    hi cursorline guibg=#333333     " highlight bg color of current line
-    hi CursorColumn guibg=#333333   " highlight cursor
-
-    if has('cmdline_info')
-        set ruler                   " show the ruler
-        set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " a ruler on steroids
-        set showcmd                 " show partial commands in status line and
-                                    " selected characters/lines in visual mode
+    if has('gui_macvim')
+        set transparency=5      " Make the window slightly transparent
     endif
-
-    if has('statusline')
-        set laststatus=2
-
-        " Broken down into easily includeable segments
-        set statusline=%<%f\    " Filename
-        set statusline+=%w%h%m%r " Options
-        set statusline+=%{fugitive#statusline()} "  Git Hotness
-        set statusline+=\ [%{&ff}/%Y]            " filetype
-        set statusline+=\ [%{getcwd()}]          " current dir
-        "set statusline+=\ [A=\%03.3b/H=\%02.2B] " ASCII / Hexadecimal value of char
-        set statusline+=%=%-14.(%l,%c%V%)\ %p%%  " Right aligned file nav info
+else
+    if &term == 'xterm' || &term == 'screen'
+        set t_Co=256            " Enable 256 colors to stop the CSApprox warning and make xterm vim shine
     endif
-
-    set backspace=indent,eol,start  " backspace for dummys
-    set linespace=0                 " No extra spaces between rows
-    set nu                          " Line numbers on
-    set showmatch                   " show matching brackets/parenthesis
-    set incsearch                   " find as you type search
-    set hlsearch                    " highlight search terms
-    set winminheight=0              " windows can be 0 line high 
-    set ignorecase                  " case insensitive search
-    set smartcase                   " case sensitive when uc present
-    set wildmenu                    " show list instead of just completing
-    set wildmode=list:longest,full  " command <Tab> completion, list matches, then longest common part, then all.
-    set whichwrap=b,s,h,l,<,>,[,]   " backspace and cursor keys wrap to
-    set scrolljump=5                " lines to scroll when cursor leaves screen
-    set scrolloff=3                 " minimum lines to keep above and below cursor
-    set foldenable                  " auto fold code
-    set gdefault                    " the /g flag on :s substitutions by default
-    set list
-    set listchars=tab:>.,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
+    "set term=builtin_ansi       " Make arrow and other keys work
+endif
 
 
-" }
-
-" Formatting {
-    set nowrap                      " wrap long lines
-    set autoindent                  " indent at the same level of the previous line
-    set shiftwidth=4                " use indents of 4 spaces
-    set expandtab                   " tabs are spaces, not tabs
-    set tabstop=4                   " an indentation every four columns
-    set softtabstop=4               " let backspace delete indent
-    "set matchpairs+=<:>                " match, to be used with % 
-    set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
-    "set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
-    " Remove trailing whitespaces and ^M chars
-    autocmd FileType c,cpp,java,php,js,python,twig,xml,yml autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
-" }
-
-" Key (re)Mappings {
-
-    "The default leader is '\', but many people prefer ',' as it's in a standard
-    "location
-    let mapleader = ','
-
-    " Making it so ; works like : for commands. Saves typing and eliminates :W style typos due to lazy holding shift.
-    nnoremap ; :
 
 
-    " Easier moving in tabs and windows
-    map <C-J> <C-W>j<C-W>_
-    map <C-K> <C-W>k<C-W>_
-    map <C-L> <C-W>l<C-W>_
-    map <C-H> <C-W>h<C-W>_
-    map <C-K> <C-W>k<C-W>_
-    
-    " Wrapped lines goes down/up to next row, rather than next line in file.
-    nnoremap j gj
-    nnoremap k gk
-
-    " The following two lines conflict with moving to top and bottom of the
-    " screen
-    " If you prefer that functionality, comment them out.
-    map <S-H> gT          
-    map <S-L> gt
-
-    " Stupid shift key fixes
-    cmap W w                        
-    cmap WQ wq
-    cmap wQ wq
-    cmap Q q
-    cmap Tabe tabe
-
-    " Yank from the cursor to the end of the line, to be consistent with C and D.
-    nnoremap Y y$
-        
-    """ Code folding options
-    nmap <leader>f0 :set foldlevel=0<CR>
-    nmap <leader>f1 :set foldlevel=1<CR>
-    nmap <leader>f2 :set foldlevel=2<CR>
-    nmap <leader>f3 :set foldlevel=3<CR>
-    nmap <leader>f4 :set foldlevel=4<CR>
-    nmap <leader>f5 :set foldlevel=5<CR>
-    nmap <leader>f6 :set foldlevel=6<CR>
-    nmap <leader>f7 :set foldlevel=7<CR>
-    nmap <leader>f8 :set foldlevel=8<CR>
-    nmap <leader>f9 :set foldlevel=9<CR>
-
-    "clearing highlighted search
-    nmap <silent> <leader>/ :nohlsearch<CR>
-
-    " Shortcuts
-    " Change Working Directory to that of the current file
-    cmap cwd lcd %:p:h
-    cmap cd. lcd %:p:h
-
-    " visual shifting (does not exit Visual mode)
-    vnoremap < <gv
-    vnoremap > >gv 
-
-    " Fix home and end keybindings for screen, particularly on mac
-    " - for some reason this fixes the arrow keys too. huh.
-map     mapmag   udo.. Really Write the file.
-    cmap w!! w !sudo tee % >/dev/null
-" }
-
-" Plugins {
-
-    " VCSCommand {
-"       let b:VCSCommandMapPrefix=',v'
-"       let b:VCSCommandVCSType='git'
-    " } 
-    
-    " PIV {
-        let g:DisableAutoPHPFolding = 0
-        "let cfu=phpcomplete#CompletePHP
-    " }
-    
-    " Supertab {
-        let g:SuperTabDefaultCompletionType = "context"
-        let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-    " }
-
-    " Misc { 
-        :map <C-F10> <Esc>:vsp<CR>:VTree<CR>
-        " map Control + F10 to Vtree
-
-        noremap <leader><F5> :CheckSyntax<cr>
-        let g:checksyntax_auto = 1
-
-        "comment out line(s) in visual mode -RB: If you do this, you can't
-        "switch sides of the comment block in visual mode.
-        "vmap  o  :call NERDComment(1, 'toggle')<CR>
-        let g:NERDShutUp=1
-
-        let b:match_ignorecase = 1
-    " }
-    
-    " ShowMarks {
-        let showmarks_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        " Don't leave on by default, use :ShowMarksOn to enable
-        let g:showmarks_enable = 0
-        " For marks a-z
-        highlight ShowMarksHLl gui=bold guibg=LightBlue guifg=Blue
-        " For marks A-Z
-        highlight ShowMarksHLu gui=bold guibg=LightRed guifg=DarkRed
-        " For all other marks
-        highlight ShowMarksHLo gui=bold guibg=LightYellow guifg=DarkYellow
-        " For multiple marks on the same line.
-        highlight ShowMarksHLm gui=bold guibg=LightGreen guifg=DarkGreen
-    " }
-    
-    " Command-t {
-        let g:CommandTSearchPath = $HOME . '/Code'
-    " }
-
-    " OmniComplete {
-        "if has("autocmd") && exists("+omnifunc")
-            "autocmd Filetype *
-                "\if &omnifunc == "" |
-                "\setlocal omnifunc=syntaxcomplete#Complete |
-                "\endif
-        "endif
-
-        " Popup menu hightLight Group
-        "highlight Pmenu    ctermbg=13  guibg=DarkBlue
-        "highlight PmenuSel ctermbg=7   guibg=DarkBlue      guifg=LightBlue
-        "highlight PmenuSbar ctermbg=7  guibg=DarkGray
-        "highlight PmenuThumb           guibg=Black
-
-        hi Pmenu  guifg=#000000 guibg=#F8F8F8 ctermfg=black ctermbg=Lightgray
-        hi PmenuSbar  guifg=#8A95A7 guibg=#F8F8F8 gui=NONE ctermfg=darkcyan ctermbg=lightgray cterm=NONE
-        hi PmenuThumb  guifg=#F8F8F8 guibg=#8A95A7 gui=NONE ctermfg=lightgray ctermbg=darkcyan cterm=NONE
-
-        " some convenient mappings 
-        inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
-        inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
-        inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-        inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-        inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
-        inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-
-        " and make sure that it doesn't break supertab
-        let g:SuperTabCrMapping = 0
-        
-        " automatically open and close the popup menu / preview window
-        au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
-        set completeopt=menu,preview,longest
-    " }
-    
-    " Ctags {
-        set tags=./tags;/,~/.vimtags
-    " }
-
-    " EasyTags {
-        let g:easytags_cmd = 'ctags'
-    " }
-
-    " Delimitmate {
-        au FileType * let b:delimitMate_autoclose = 1
-
-        " If using html auto complete (complete closing tag)
-        au FileType xml,html,xhtml let b:delimitMate_matchpairs = "(:),[:],{:}"
-    " }
-    
-    " AutoCloseTag {
-        " Make it so AutoCloseTag works for xml and xhtml files as well
-        au FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
-    " }
-
-    " SnipMate {
-        " Setting the author var
-        " If forking, please overwrite in your .vimrc.local file
-        let g:snips_author = 'Steve Francia <steve.francia@gmail.com>'
-        " Shortcut for reloading snippets, useful when developing
-        nnoremap ,smr <esc>:exec ReloadAllSnippets()<cr>
-    " }
-
-    " NerdTree {
-        map <C-e> :NERDTreeToggle<CR>:NERDTreeMirror<CR>
-        map <leader>e :NERDTreeFind<CR>
-        nmap <leader>nt :NERDTreeFind<CR>
-
-        let NERDTreeShowBookmarks=1
-        let NERDTreeIgnore=['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
-        let NERDTreeChDirMode=0
-        let NERDTreeQuitOnOpen=1
-        let NERDTreeShowHidden=1
-        let NERDTreeKeepTreeInNewTab=1
-    " }
-
-    " Richard's plugins {
-        " Fuzzy Finder {
-            """ Fuzzy Find file, tree, buffer, line
-            nmap <leader>ff :FufFile **/<CR>
-            nmap <leader>ft :FufFile<CR>
-            nmap <leader>fb :FufBuffer<CR>
-            nmap <leader>fl :FufLine<CR>
-            nmap <leader>fr :FufRenewCache<CR>
-        " }
-
-        " Session List {
-            set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
-            nmap <leader>sl :SessionList<CR>
-            nmap <leader>ss :SessionSave<CR>
-        " }
-        
-        " Buffer explorer {
-            nmap <leader>b :BufExplorer<CR>
-        " }
-        
-        " VCS commands {
-            nmap <leader>vs :VCSStatus<CR>
-            nmap <leader>vc :VCSCommit<CR>
-            nmap <leader>vb :VCSBlame<CR>
-            nmap <leader>va :VCSAdd<CR>
-            nmap <leader>vd :VCSVimDiff<CR>
-            nmap <leader>vl :VCSLog<CR>
-            nmap <leader>vu :VCSUpdate<CR>
-        " }
-        " php-doc commands {
-            nmap <leader>pd :call PhpDocSingle()<CR>
-            vmap <leader>pd :call PhpDocRange()<CR>
-        " }
-        
-        " Debugging with VimDebugger {
-            map <F11> :DbgStepInto<CR>
-            map <F10> :DbgStepOver<CR>
-            map <S-F11> :DbgStepOut<CR>
-            map <F5> :DbgRun<CR>
-            map <F6> :DbgDetach<CR>
-            map <F8> :DbgToggleBreakpoint<CR>
-            map <S-F8> :DbgFlushBreakpoints<CR>
-            map <F9> :DbgRefreshWatch<CR>
-            map <S-F9> :DbgAddWatch<CR>
-        " }
-
-        " Taglist Variables {
-            let Tlist_Auto_Highlight_Tag = 1
-            let Tlist_Auto_Update = 1
-            let Tlist_Exit_OnlyWindow = 1
-            let Tlist_File_Fold_Auto_Close = 1
-            let Tlist_Highlight_Tag_On_BufEnter = 1
-            let Tlist_Use_Right_Window = 1
-            let Tlist_Use_SingleClick = 1
-
-            let g:ctags_statusline=1
-            " Override how taglist does javascript
-            let g:tlist_javascript_settings = 'javascript;f:function;c:class;m:method;p:property;v:global'
-         " }
-
-        " JSON {
-            nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
-         " }
-    " }
-" }
-
-" GUI Settings {
-    " GVIM- (here instead of .gvimrc)
-    if has('gui_running')
-        set guioptions-=T           " remove the toolbar
-        set lines=40                " 40 lines of text instead of 24,
-        set transparency=5          " Make the window slightly transparent
-    else
-        set term=builtin_ansi       " Make arrow and other keys work
-    endif
-" }
-
+" Initialize directories {
 function! InitializeDirectories()
-  let separator = "."
-  let parent = $HOME 
-  let prefix = '.vim'
-  let dir_list = { 
-              \ 'backup': 'backupdir', 
-              \ 'views': 'viewdir', 
-              \ 'swap': 'directory' }
+    let parent = $HOME
+    let prefix = 'vim'
+    let dir_list = {
+                \ 'backup': 'backupdir',
+                \ 'views': 'viewdir',
+                \ 'swap': 'directory' }
 
-  for [dirname, settingname] in items(dir_list)
-      let directory = parent . '/' . prefix . dirname . "/"
-      if exists("*mkdir")
-          if !isdirectory(directory)
-              call mkdir(directory)
-          endif
-      endif
-      if !isdirectory(directory)
-          echo "Warning: Unable to create backup directory: " . directory
-          echo "Try: mkdir -p " . directory
-      else  
-          let directory = substitute(directory, " ", "\\\\ ", "")
-          exec "set " . settingname . "=" . directory
-      endif
-  endfor
+    if has('persistent_undo')
+        let dir_list['undo'] = 'undodir'
+    endif
+
+    for [dirname, settingname] in items(dir_list)
+        let directory = common_dir . dirname . '/'
+        if exists("*mkdir")
+            if !isdirectory(directory)
+                call mkdir(directory)
+            endif
+        endif
+        if !isdirectory(directory)
+            echo "Warning: Unable to create backup directory: " . directory
+            echo "Try: mkdir -p " . directory
+        else
+            let directory = substitute(directory, " ", "\\\\ ", "g")
+            exec "set " . settingname . "=" . directory
+        endif
+    endfor
 endfunction
-call InitializeDirectories() 
-
 function! NERDTreeInitAsNeeded()
     redir => bufoutput
     buffers!
@@ -433,9 +286,33 @@ function! NERDTreeInitAsNeeded()
         wincmd l
     endif
 endfunction
+function! s:RunShellCommand(cmdline)
+    botright new
 
-" Use local vimrc if available {
-    if filereadable(expand("~/.vimrc.local"))
-        source ~/.vimrc.local
+    setlocal buftype=nofile
+    setlocal bufhidden=delete
+    setlocal nobuflisted
+    setlocal noswapfile
+    setlocal nowrap
+    setlocal filetype=shell
+    setlocal syntax=shell
+
+    call setline(1, a:cmdline)
+    call setline(2, substitute(a:cmdline, '.', '=', 'g'))
+    execute 'silent $read !' . escape(a:cmdline, '%#')
+    setlocal nomodifiable
+    1
+endfunction
+
+if filereadable(expand("~/.vimrc.fork"))
+        source ~/.vimrc.fork
+endif
+if filereadable(expand("~/.vimrc.local"))
+    source ~/.vimrc.local
+endif
+if has('gui_running')
+    if filereadable(expand("~/.gvimrc.local"))
+        source ~/.gvimrc.local
     endif
-" }
+endif
+
