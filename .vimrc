@@ -237,16 +237,4 @@
         setlocal nomodifiable
         1
     endfunction
-    if filereadable(expand("~/.vimrc.fork"))
-            source ~/.vimrc.fork
-    endif
-    if filereadable(expand("~/.vimrc.local"))
-        source ~/.vimrc.local
-    endif
-    if has('gui_running')
-        if filereadable(expand("~/.gvimrc.local"))
-            source ~/.gvimrc.local
-        endif
-    endif
-
 " }
