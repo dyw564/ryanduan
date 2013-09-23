@@ -1,5 +1,5 @@
 "This is the personal .vimrc file of Ryan Duan.
-"Welcome!
+"Thanks for Steve's spf13.
 "         ____
 "        |  _ \
 "        | |_) |                  _
